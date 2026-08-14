@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Online Image Compressor - Reduce Photo Size Instantly</title>
+    <meta name="description" content="Compress JPEG and PNG images quickly without losing quality. Free online tool to optimize images for websites, emails, and faster loading speeds.">
+    <!-- Clean, lightweight styling framework -->
+    <link rel="stylesheet" href="https://jsdelivr.net">
+    <style>
+        .drop-zone { border: 2px dashed #0076d6; padding: 40px; text-align: center; border-radius: 8px; margin: 20px 0; cursor: pointer; background: #fafafa; }
+        .result-box { display: flex; gap: 20px; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; }
+        .card { border: 1px solid #ccc; padding: 15px; border-radius: 5px; flex: 1; min-width: 200px; text-align: center; background: #fff; }
+        img { max-width: 100%; height: auto; border-radius: 4px; }
+        .ad-placeholder { background: #f0f0f0; border: 1px dashed #bbb; color: #666; padding: 20px; text-align: center; margin: 30px 0; border-radius: 5px; font-weight: bold; }
+        footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #666; }
+        .legal-section { display: none; margin-top: 30px; background: #f9f9f9; padding: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ QuickCompress</h1>
+        <p>Compress JPEG and PNG images directly in your browser. Fast, secure, and 100% free.</p>
+    </header>
+
+    <main>
+        <!-- Top Ad Placement Placeholder -->
+        <div class="ad-placeholder" id="top-ad">Advertisement Space (AdSense Code Goes Here)</div>
+
+        <!-- THE TOOL INTERFACE -->
+        <div class="drop-zone" id="dropZone">
+            <p>📁 Drag & drop an image here or <strong>click to upload</strong></p>
+            <input type="file" id="fileInput" accept="image/jpeg, image/png" style="display: none;">
+        </div>
+
+        <div style="margin: 20px 0; text-align: center;">
+            <label for="quality">Compression Quality: <span id="qualityVal">80</span>%</label><br>
+            <input type="range" id="quality" min="10" max="100" value="80" style="width: 100%; max-width: 400px;">
+        </div>
+
+        <div class="result-box" id="resultBox" style="display: none;">
+            <div class="card">
+                <h3>Original Image</h3>
+                <p id="origSize">Size: 0 KB</p>
+                <div id="origPreview"></div>
+            </div>
+            <div class="card">
+                <h3>Compressed Image</h3>
+                <p id="compSize">Size: 0 KB</p>
+                <div id="compPreview"></div>
+                <br>
+                <a id="downloadBtn" download="compressed-image.jpg"><button style="width: 100%;">Download Compressed Image</button></a>
+            </div>
+        </div>
+
+        <!-- Middle Ad Placement Placeholder -->
+        <div class="ad-placeholder" id="mid-ad">Advertisement Space (AdSense Code Goes Here)</div>
+
+        <!-- SEO AND GOOGLE ADSENSE COMPLIANCE CONTENT -->
+        <section id="content-seo">
+            <h2>Why Optimize and Compress Your Images?</h2>
+            <p>Large image files slow down websites, consume immense mobile data, and hurt your search engine rankings. By using our free online image compressor, you can drastically reduce file sizes while retaining crystal-clear quality.</p>
+            
+            <h3>1. 100% Safe and Secure Private Processing</h3>
+            <p>Unlike other online file tools, your photos are never uploaded to a remote server. All image optimization and file compression happen entirely inside your local web browser. Your private data never leaves your device.</p>
+
+            <h3>2. Improve SEO Rankings and Web Load Speeds</h3>
+            <p>Google factors page speed heavily into mobile search algorithms. Compressing your PNG and JPEG assets ensures swift page responses, lower bounce rates, and better user engagement scores.</p>
+
+            <h3>3. Perfect for Email and Social Media Attachments</h3>
+            <p>Easily bypass strict file limits on email services and messaging platforms. Slide the quality bar to find the perfect balance between minimal file size and maximum visual quality.</p>
+        </section>
+
+        <!-- Dynamic Legal Content for AdSense Requirements -->
+        <div id="privacy-policy" class="legal-section">
+            <h3>Privacy Policy</h3>
+            <p>We value your privacy. QuickCompress operates completely client-side. We do not collect, store, or transmit any images uploaded to this platform. Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to this website.</p>
+            <button onclick="toggleLegal('privacy-policy')">Close</button>
+        </div>
+
+        <div id="terms-service" class="legal-section">
+            <h3>Terms of Service</h3>
+            <p>This utility tool is provided "as is" without warranty of any kind. QuickCompress is not liable for any data glitches or file performance variations resulting from client-side script use.</p>
+            <button onclick="toggleLegal('terms-service')">Close</button>
+        </div>
+
+        <!-- Bottom Ad Placement Placeholder -->
+        <div class="ad-placeholder" id="bottom-ad">Advertisement Space (AdSense Code Goes Here)</div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 QuickCompress. All Rights Reserved. | 
+            <a href="#" onclick="toggleLegal('privacy-policy'); return false;">Privacy Policy</a> | 
+            <a href="#" onclick="toggleLegal('terms-service'); return false;">Terms of Service</a>
+        </p>
+    </footer>
+
+    <!-- Browser Image Compression Script Library -->
+    <script src="https://jsdelivr.net"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const qualitySlider = document.getElementById('quality');
+        const qualityVal = document.getElementById('qualityVal');
+        const resultBox = document.getElementById('resultBox');
+        
+        let currentFile = null;
+
+        qualitySlider.addEventListener('input', (e) => {
+            qualityVal.textContent = e.target.value;
+            if (currentFile) compressImage(currentFile);
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            currentFile = file;
+            document.getElementById('origSize').textContent = `Size: ${(file.size / 1024).toFixed(2)} KB`;
+            document.getElementById('origPreview').innerHTML = `<img src="${URL.createObjectURL(file)}">`;
+            compressImage(file);
+        }
+
+        async function compressImage(file) {
+            const options = {
+                maxSizeMB: 2,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+                initialQuality: qualitySlider.value / 100
+            };
+            try {
+                const compressedFile = await imageCompression(file, options);
+                document.getElementById('compSize').textContent = `Size: ${(compressedFile.size / 1024).toFixed(2)} KB`;
+                
+                const compUrl = URL.createObjectURL(compressedFile);
+                document.getElementById('compPreview').innerHTML = `<img src="${compUrl}">`;
+                
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.href = compUrl;
+                downloadBtn.download = `compressed-${file.name}`;
+                
+                resultBox.style.display = 'flex';
+            } catch (error) {
+                console.error("Compression failed:", error);
+            }
+        }
+
+        function toggleLegal(id) {
+            const section = document.getElementById(id);
+            section.style.display = section.style.display === 'block' ? 'none' : 'block';
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
+
